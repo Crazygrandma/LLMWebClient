@@ -65,6 +65,8 @@
             color: white;
             box-shadow: 0 0 2em rgba(255, 255, 255, 0.05);
             border: solid 1px rgb(60, 60, 60);
+            height: 5.3em;
+            overflow: hidden;
         }
 
         #submitButton {
@@ -80,6 +82,8 @@
             justify-content: center;
             align-items: center;
             background-color: white;
+            border: solid 1px rgb(180, 180, 180);
+            box-shadow: 0 0 2em rgba(0, 0, 0, 0.2);
         }
 
         #submitButton:hover {
@@ -136,6 +140,7 @@
             max-width: 800px;
             margin: 0 auto;
             width: 100%;
+            padding: 0 1em;
         }
     </style>
 </head>
@@ -150,7 +155,8 @@
         <form id="askForm">
             <textarea type="text" name="userInput" id="userInput" placeholder='Ask Llama'></textarea>
             <!--TODO: Display chosen model instead of Llama-->
-            <button type="submit" id="submitButton"><i style="transform: translate(-5%, 5%);" data-feather="send"></i></button>
+            <button type="submit" id="submitButton"><i style="transform: translate(-5%, 5%);"
+                    data-feather="send"></i></button>
         </form>
     </main>
     <script>
