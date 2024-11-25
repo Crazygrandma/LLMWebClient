@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMWebClient</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+
+        body {
+            background: rgb(52, 52, 52);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2em;
+            width: 70%;
+            height: 100%;
+        }
+
+        .chatWindow {
+            width: 60%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .buttonField {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 2em;
+            height: 10%;
+        }
+
+        .userInput {
+            background-color: gray;
+            width: 70%;
+            height: 100%;
+            border: none;
+            border-radius: 4em;
+            font-size: medium;
+            padding: 0em 1em;
+        }
+
+        .submitButton {
+            height: 3em;
+            width: 6em;
+            background-color: rgb(156, 156, 156);
+            border: 3px solid black;
+            cursor: pointer;
+
+        }
+
+        .submitButton:hover {
+            background-color: rgb(222, 222, 222);
+            border: 3px solid white;
+        }
+
+        .llmOutputWindow {
+            background-color: rgb(84, 84, 84);
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            justify-content: start;
+            border: none;
+            gap: 3em;
+            padding: 1em 0em;
+            width: 100%;
+            height: 90%;
+        }
+
+        .message {
+            display: flex;
+            padding: 0.4em 2em;
+            border: 2px solid white;
+            max-width: 80ch;
+            background-color: rgb(154, 154, 154);
+        }
+
+        .userMessage {
+            align-self: flex-start;
+            border-radius: 0em 2em 2em 0em;
+            border-left: none;
+        }
+
+        .llmMessage {
+            border-radius: 2em 0em 0em 2em;
+            border-right: none;
+            align-self: flex-end;
+        }
+
+        h1 {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <h1>LLMWebClient</h1>
+        <div class="llmOutputWindow" id="llmOutputWindow">
+        </div>
+        <form class="chatWindow">
+            <div class="buttonField">
+                <input class="userInput" type="text" name="userInput" id="userInput" placeholder="Message LLM">
+                <button class="submitButton" type="submit" id="submitButton">Submit</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        const button = document.getElementById('submitButton')
+        const llmOutputWindow = document.getElementById('llmOutputWindow')
+        const userInput = document.getElementById('userInput')
+
+        let username = "MoviemakerHD"
+
+        button.addEventListener('click', (e) => {
+            e.preventDefault()
+            sendMessage();
+            // Update text area 
+            // &#13;&#10; - adds newline character
+
+            let userMessage = document.createElement('div')
+            userMessage.classList.add('userMessage')
+            userMessage.classList.add('message')
+            
+
+
+            userMessage.innerHTML = username + ": " + userInput.value + "&#13;&#10;"
+            userInput.value = ""
+
+            // Dummy value from llm
+
+
+            llmOutputWindow.appendChild(userMessage)
+
+        })
+
+
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
+
+        socket.onopen = () => {
+            console.log("Connected to WebSocket server.");
+        };
+
+        socket.onmessage = (event) => {
+            const messageData = JSON.parse(event.data);
+            let llmMessage = document.createElement('div')
+            llmMessage.classList.add('llmMessage')
+            llmMessage.classList.add('message')
+            llmMessage.innerHTML = messageData.message;
+            console.log(messageData);
+            llmOutputWindow.appendChild(llmMessage)
+        };
+
+        socket.onclose = () => {
+            console.log("Disconnected from WebSocket server.");
+        };
+
+        function sendMessage() {
+            const messageInput = document.getElementById("userInput");
+            const message = messageInput.value;
+            console.log(message)
+            socket.send(JSON.stringify({ 'message': message }));
+            messageInput.value = '';  // Clear the input after sending
+        }
+    </script>
+</body>
+
+</html>
