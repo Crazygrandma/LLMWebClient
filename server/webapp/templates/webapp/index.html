@@ -4,23 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LLMWebClient</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
 </head>
 <body>
-    <h1>LLMWebClient</h1>
-    <form action="" method="post">
-        <textarea name="llmOutput" id="llmOutput"></textarea>
-        <label for="input">TextInput</label>
-        <input type="text" name="userInput" id="userInput">
-        <button type="submit">Submit</button>
-    </form>
+    <div class="content">
+        <h1>LLMWebClient</h1>
+        <div class="llmOutputWindow" id="llmOutputWindow">
+        </div>
+        <form class="chatWindow" action="" method="">
+            <div class="buttonField">
+                <input class="userInput" type="text" name="userInput" id="userInput" placeholder="Message LLM">
+                <button class="submitButton" type="submit" id="submitButton">Submit</button>
+            </div>
+        </form>
+    </div>
     <script>
     // Connect to the WebSocket server
     const socket = io('http://localhost:3000'); // Replace with your server's URL
 
+    const button = document.getElementById('submitButton')
+    const llmOutputWindow = document.getElementById('llmOutputWindow')
+    const userInput = document.getElementById('userInput')
+
+    let username = "MoviemakerHD"
+
+    button.addEventListener('click',(e)=>{
+        e.preventDefault()
+        // Update text area 
+        // &#13;&#10; - adds newline character
+
+        let userMessage = document.createElement('div')
+        userMessage.classList.add('userMessage')
+        userMessage.classList.add('message')
+        let llmMessage = document.createElement('div')
+        llmMessage.classList.add('llmMessage')
+        llmMessage.classList.add('message')
+
+
+
+        userMessage.innerHTML = username +": " + userInput.value + "&#13;&#10;"
+        userInput.value = ""
+
+        // Dummy value from llm
+
+        llmMessage.innerHTML = "LLM: Hey was geht ab?" 
+
+        llmOutputWindow.appendChild(userMessage)
+        llmOutputWindow.appendChild(llmMessage)
+    })
+
+
     // Get button elements
-
-
     // Onsubmit function
     // socket.emit('message', 'Hello, server!');
 
