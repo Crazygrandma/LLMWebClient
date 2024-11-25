@@ -101,6 +101,17 @@
             border-right: none;
             align-self: flex-start;
             color: white;
+            display: flex;
+            max-width: 50%;
+            flex-wrap: wrap;
+            white-space: pre;
+        }
+
+        .chunk-element {
+            opacity: 0;
+            transition: opacity 0.5s;
+            line-height: normal;
+            height: fit-content;
         }
 
         h1 {
@@ -156,7 +167,16 @@
             const dialogElement = document.getElementById(id);
             const llmMessageElement = dialogElement.querySelector('.llm-message');
 
-            llmMessageElement.textContent += token;
+            const chunkElement = document.createElement('div');
+            const chunkSpan = document.createElement('span');
+            chunkSpan.textContent = token;
+            chunkElement.appendChild(chunkSpan);
+            chunkElement.classList.add('chunk-element');
+            llmMessageElement.appendChild(chunkElement);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            setTimeout(()=> {
+                chunkElement.style.opacity = 1;
+            }, 100);
         }
 
         // Sockets
