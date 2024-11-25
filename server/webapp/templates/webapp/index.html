@@ -1,1 +1,51 @@
-hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLMWebClient</title>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+</head>
+<body>
+    <h1>LLMWebClient</h1>
+    <form action="" method="post">
+        <textarea name="llmOutput" id="llmOutput"></textarea>
+        <label for="input">TextInput</label>
+        <input type="text" name="userInput" id="userInput">
+        <button type="submit">Submit</button>
+    </form>
+    <script>
+    // Connect to the WebSocket server
+    const socket = io('http://localhost:3000'); // Replace with your server's URL
+
+    // Get button elements
+
+
+    // Onsubmit function
+    // socket.emit('message', 'Hello, server!');
+
+    // Listen for connection confirmation
+    socket.on('connect', () => 
+    {
+        console.log('Connected to server:', socket.id);
+
+        // Send a message to the server
+        // Add input to text field with socketid / username : message.content
+        socket.emit('message', 'Hello, server!');
+    });
+
+    // Listen for messages from the server
+    socket.on('message', (data) => {
+
+        // Get response from LLM
+        // Add output text field with LLM: data.message.content
+    console.log('Message from server:', data);
+    });
+
+    // Handle disconnection
+    socket.on('disconnect', () => {
+    console.log('Disconnected from server');
+    });
+    </script>
+</body>
+</html>
