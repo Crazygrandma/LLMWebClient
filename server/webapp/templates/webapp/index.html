@@ -66,17 +66,21 @@
 
         #chatWindow {
             background-color: rgb(84, 84, 84);
-            display: flex;
-            flex-direction: column;
-            align-items: start;
-            justify-content: start;
-            border: none;
-            gap: 3em;
+
             padding: 1em 0em;
             width: 100%;
             height: 90%;
             overflow-y: auto;
             scroll-behavior: smooth;
+        }
+
+        .dialog {
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            justify-content: start;
+            gap: 3em;
+            width: 100%;
         }
 
         .message {
@@ -122,17 +126,37 @@
         const userInput = document.getElementById('userInput')
         const askForm = document.getElementById('askForm')
 
+        userInput.focus();
+
         askForm.addEventListener('submit', (event) => {
             event.preventDefault()
             sendMessage()
         })
 
-        function appendMessage(message, sender) {
-            let messageElement = document.createElement('div');
-            messageElement.classList.add('message', `${sender}-message`);
-            messageElement.textContent = message;
-            chatWindow.appendChild(messageElement);
+        function appendDialog(inputMessage, id) {
+            const dialogElement = document.createElement('div');
+            dialogElement.classList.add('dialog');
+            dialogElement.id = id;
+
+            const userMessageElement = document.createElement('div');
+            userMessageElement.classList.add('message', 'user-message');
+            userMessageElement.textContent = inputMessage;
+
+            const llmMessageElement = document.createElement('div');
+            llmMessageElement.classList.add('message', 'llm-message');
+
+            dialogElement.appendChild(userMessageElement);
+            dialogElement.appendChild(llmMessageElement);
+            chatWindow.appendChild(dialogElement);
+
             chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function addStreamingChunk(token, id) {
+            const dialogElement = document.getElementById(id);
+            const llmMessageElement = dialogElement.querySelector('.llm-message');
+
+            llmMessageElement.textContent += token;
         }
 
         // Sockets
@@ -142,9 +166,17 @@
             console.log("Connected to WebSocket server.");
         };
 
-        socket.onmessage = (event) => {
-            const message = JSON.parse(event.data).message;
-            appendMessage(message, 'llm');
+        socket.onmessage = (message) => {
+            data = message.data;
+            event = JSON.parse(data);
+            const type = event["type"];
+            if (type === "initiateDialog") {
+                const { inputMessage, id } = event;
+                appendDialog(inputMessage, id);
+            } else if (type === "token") {
+                const { token, id } = event;
+                addStreamingChunk(token, id);
+            }
         };
 
         socket.onclose = () => {
@@ -156,8 +188,7 @@
             const message = messageInput.value;
 
             if (message !== '') {
-                appendMessage(message, 'user');
-                socket.send(JSON.stringify({ 'message': message }));
+                socket.send(JSON.stringify({ 'inputMessage': message }));
                 messageInput.value = '';
             }
         }
