@@ -1,51 +1,41 @@
+<!-- webapp/templates/webapp/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LLMWebClient</title>
-    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js" integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+" crossorigin="anonymous"></script>
+    <title>WebSocket Test</title>
 </head>
 <body>
-    <h1>LLMWebClient</h1>
-    <form action="" method="post">
-        <textarea name="llmOutput" id="llmOutput"></textarea>
-        <label for="input">TextInput</label>
-        <input type="text" name="userInput" id="userInput">
-        <button type="submit">Submit</button>
-    </form>
+    <h1>WebSocket Chat</h1>
+    <div id="messages"></div>
+    <input id="messageInput" type="text" placeholder="Type your message">
+    <button onclick="sendMessage()">Send</button>
+
     <script>
-    // Connect to the WebSocket server
-    const socket = io('http://localhost:3000'); // Replace with your server's URL
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
 
-    // Get button elements
+        socket.onopen = () => {
+            console.log("Connected to WebSocket server.");
+        };
 
+        socket.onmessage = (event) => {
+            const messageData = JSON.parse(event.data);
+            const messagesDiv = document.getElementById("messages");
+            messagesDiv.innerHTML += `<p>${messageData.message}</p>`;
+            console.log("Received message:", messageData.message);
+        };
 
-    // Onsubmit function
-    // socket.emit('message', 'Hello, server!');
+        socket.onclose = () => {
+            console.log("Disconnected from WebSocket server.");
+        };
 
-    // Listen for connection confirmation
-    socket.on('connect', () => 
-    {
-        console.log('Connected to server:', socket.id);
-
-        // Send a message to the server
-        // Add input to text field with socketid / username : message.content
-        socket.emit('message', 'Hello, server!');
-    });
-
-    // Listen for messages from the server
-    socket.on('message', (data) => {
-
-        // Get response from LLM
-        // Add output text field with LLM: data.message.content
-    console.log('Message from server:', data);
-    });
-
-    // Handle disconnection
-    socket.on('disconnect', () => {
-    console.log('Disconnected from server');
-    });
+        function sendMessage() {
+            const messageInput = document.getElementById("messageInput");
+            const message = messageInput.value;
+            socket.send(JSON.stringify({ 'message': message }));
+            messageInput.value = '';  // Clear the input after sending
+        }
     </script>
 </body>
 </html>
