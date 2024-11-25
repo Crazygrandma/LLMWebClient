@@ -23,14 +23,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         # Print the received message in the Django server
-        print(f"Received message: {text_data}")
+        data = json.loads(text_data)
+        message = data['message']
 
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message': text_data
+                'message': message
             }
         )
 
@@ -38,5 +39,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Send the message to WebSocket
         message = event['message']
         await self.send(text_data=json.dumps({
-            'message': message
+            'message': 'This is a highly intelligent response.'
         }))
